@@ -8,7 +8,6 @@
   <!-- <script src="./three.js"></script> -->
   <!-- three.jsを読み込む(CDN) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/99/three.min.js"></script>
-  <script src="https://unpkg.com/three@0.137.4/examples/js/controls/OrbitControls.js"></script>
 
 </head>
 <body>
@@ -22,7 +21,6 @@
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
     document.body.appendChild(renderer.domElement);
-    renderer.shadowMap.enabled = true;
   
     // シーンを作成
     var scene = new THREE.Scene();
@@ -30,7 +28,7 @@
     // カメラを作成
     var camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000);
     camera.position.set(1, 1, 5); //位置を指定
-    const controls = new THREE.OrbitControls(camera, document.body);
+    camera.lookAt(0, 0, 0); //見つめる方向
 
     // テクスチャー読み込み
     var textureLoader = new THREE.TextureLoader();
@@ -44,37 +42,33 @@
     const axisHelper = new THREE.AxisHelper(2); //軸の長さ X：赤、Y：緑、z：青
     scene.add(axisHelper);
     
-    //ライト
-    var light = new THREE.SpotLight({ color: 0xffffff });
+     //ライト
+     var light = new THREE.SpotLight({ color: 0xffffff });
     light.position.set(10,10,10)
     light.castShadow = true;
     light.shadow.mapSize.width = 2048;
     light.shadow.mapSize.height = 2048;
     scene.add(light);
 
-    
+    // 箱を作成
+    var geometry = new THREE.BoxGeometry(1, 1, 1);
+    var material = new THREE.MeshPhongMaterial({ color: 0xffe4c4 });
+    var box = new THREE.Mesh(geometry, material);
+    box.position.z = (0,0,0);
+    scene.add(box);
   
 // 平面を作成
-var geometry = new THREE.PlaneGeometry( 10, 10, 1 );
-var material = new THREE.MeshPhongMaterial( {color: 0x0000ff} );
+var geometry = new THREE.PlaneGeometry( 1, 1, 1 );
+var material = new THREE.MeshPhongMaterial( {color: 0x0000ff, side: THREE.DoubleSide} );
 var plane = new THREE.Mesh( geometry, material );
-plane.rotation.x = -(Math.PI/2);
-plane.receiveShadow = true;
+plane.position.z = -5;
 scene.add( plane );
-
-// 箱を作成
-var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var box = new THREE.Mesh(geometry, mat);
-    box.position.set(0,0,0);
-    box.castShadow = true;
-    scene.add(box);
 
 //角すい〜円すい
 var coneGeometry = new THREE.ConeGeometry( 0.5, 1, 5 ); 
 var coneMaterial = new THREE. MeshPhongMaterial( {color: 0x0000ff} );
 var cone = new THREE.Mesh( coneGeometry, coneMaterial );
 cone.position.set( 1, 0, -5 );
-cone.castShadow = true;
 scene.add( cone );  
 
 //角柱〜円柱
@@ -83,15 +77,13 @@ var cylinderGeometry = new THREE.CylinderGeometry( 0.3, 0.5, 1, 8 );
 var cylinderMaterial = new THREE.MeshPhongMaterial( {color: 0x008000} );
 var cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
 cylinder.position.set( -2, 1, -5 );
-cylinder.castShadow = true;
 scene.add( cylinder );
 
 //球
 var sphereGeometry = new THREE.SphereGeometry( 0.5, 32, 32 );
-var sphereMaterial = new THREE. MeshPhongMaterial( {color: 0x0fffff,wireframe: true} );
+var sphereMaterial = new THREE. MeshPhongMaterial( {color: 0x0ffbff,wireframe: true} );
 var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
 sphere.position.set( 0, 0, 5 );
-sphere.castShadow = true;
 scene.add( sphere );
 
 //ドーナッツ
@@ -99,7 +91,6 @@ var torusGeometry = new THREE.TorusGeometry( 0.5, 0.2, 6, 12 );
 var torusMaterial = new THREE. MeshPhongMaterial( { color: 0xffdab9 } );
 var torus = new THREE.Mesh( torusGeometry, torusMaterial );
 torus.position.set( 0, 2, -5);
-torus.castShadow = true;
 scene.add( torus );
 
 
@@ -108,14 +99,29 @@ var torusKnotGeometry = new THREE.TorusKnotGeometry( 1.5, 0.3, 20, 6, 3, 2 );
 var torusKnotMaterial = new THREE. MeshPhongMaterial( { color: 0x8a2be2, wireframe: true } );
 var torusKnot = new THREE.Mesh( torusKnotGeometry, torusKnotMaterial );
 torusKnot.position.set( -5, 0, -5 );
-torusKnot.castShadow = true;
 scene.add( torusKnot );
 
+
+  
+    // 平行光源1
+    var directionalLight1 = new THREE.DirectionalLight(0xffffff);
+    directionalLight1.position.set(1, 1, 1);
+    // シーンに追加
+    scene.add(directionalLight1);
+    // 平行光源2
+        var directionalLight2 = new THREE.DirectionalLight(0xffffff);
+    directionalLight2.position.set(-1, 1, 1);
+    // シーンに追加
+    scene.add(directionalLight2);
+  
     // 初回実行
     var update = function() {
       requestAnimationFrame(update);
   
       // 箱を回転させる
+      box.rotation.x += 0.01;
+      box.rotation.y += 0.01;
+
       cylinder.rotation.x += 0.01;
       cylinder.rotation.y += 0.01;
 
